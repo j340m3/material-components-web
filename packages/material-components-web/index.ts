@@ -46,3 +46,4 @@ import '@material/radio/custom-element';
 import '@material/ripple/custom-element';
 import '@material/select/custom-element';
 import '@material/slider/custom-element';
+import '@material/snackbar/custom-element';
