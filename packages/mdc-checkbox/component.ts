@@ -85,7 +85,6 @@ export class MDCCheckbox extends MDCComponent<MDCCheckboxFoundation> implements 
   }
 
   private readonly ripple_: MDCRipple = this.createRipple_();
-  private handleChange_!: EventListener; // assigned in initialSyncWithDOM()
   private handleAnimationEnd_!: EventListener; // assigned in initialSyncWithDOM()
 
   initialize() {
@@ -96,16 +95,13 @@ export class MDCCheckbox extends MDCComponent<MDCCheckboxFoundation> implements 
   }
 
   initialSyncWithDOM() {
-    this.handleChange_ = () => this.foundation.handleChange();
     this.handleAnimationEnd_ = () => this.foundation.handleAnimationEnd();
-    this.nativeControl_.addEventListener('change', this.handleChange_);
     this.listen(getCorrectEventName(window, 'animationend'), this.handleAnimationEnd_);
     this.installPropertyChangeHooks_();
   }
 
   destroy() {
     this.ripple_.destroy();
-    this.nativeControl_.removeEventListener('change', this.handleChange_);
     this.unlisten(getCorrectEventName(window, 'animationend'), this.handleAnimationEnd_);
     this.uninstallPropertyChangeHooks_();
     super.destroy();
