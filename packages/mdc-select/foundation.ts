@@ -148,11 +148,6 @@ export class MDCSelectFoundation extends MDCFoundation<MDCSelectAdapter> {
     this.lastSelectedIndex = index;
   }
 
-  setValue(value: string, skipNotify = false) {
-    const index = this.adapter.getMenuItemValues().indexOf(value);
-    this.setSelectedIndex(index, /** closeMenu */ false, skipNotify);
-  }
-
   getValue() {
     const index = this.adapter.getSelectedIndex();
     const menuItemValues = this.adapter.getMenuItemValues();
@@ -210,7 +205,8 @@ export class MDCSelectFoundation extends MDCFoundation<MDCSelectAdapter> {
    */
   layout() {
     if (this.adapter.hasLabel()) {
-      const optionHasValue = this.getValue().length > 0;
+      const optionHasValue = this.getSelectedIndex() !== numbers.UNSET_INDEX &&
+        this.adapter.getMenuItemTextAtIndex(this.getSelectedIndex()).length > 0;
       const isFocused = this.adapter.hasClass(cssClasses.FOCUSED);
       const shouldFloatAndNotch = optionHasValue || isFocused;
       const isRequired = this.adapter.hasClass(cssClasses.REQUIRED);
@@ -262,7 +258,6 @@ export class MDCSelectFoundation extends MDCFoundation<MDCSelectAdapter> {
    */
   handleChange() {
     this.layout();
-    this.adapter.notifyChange(this.getValue());
 
     const isRequired = this.adapter.hasClass(cssClasses.REQUIRED);
     if (isRequired && this.useDefaultValidation) {
@@ -419,8 +414,11 @@ export class MDCSelectFoundation extends MDCFoundation<MDCSelectAdapter> {
         !this.adapter.hasClass(cssClasses.DISABLED)) {
       // See notes for required attribute under https://www.w3.org/TR/html52/sec-forms.html#the-select-element
       // TL;DR: Invalid if no index is selected, or if the first index is selected and has an empty value.
-      return this.getSelectedIndex() !== numbers.UNSET_INDEX &&
-          (this.getSelectedIndex() !== 0 || Boolean(this.getValue()));
+      return this.getSelectedIndex() !== numbers.UNSET_INDEX && (
+        this.getSelectedIndex() !== 0 || (
+          this.adapter.getMenuItemTextAtIndex(this.getSelectedIndex()).length > 0
+        )
+      );
     }
     return this.customValidity;
   }
