@@ -270,7 +270,9 @@ export class MDCList extends MDCComponent<MDCListFoundation> {
       isCheckboxCheckedAtIndex: (index) => {
         const listItem = this.listElements[index];
         const toggleEl =
-            listItem.querySelector<HTMLInputElement>(strings.CHECKBOX_SELECTOR);
+            listItem.querySelector<HTMLInputElement>(
+              `${strings.CHECKBOX_SELECTOR}, ${strings.RADIO_SELECTOR}`
+        );
         return toggleEl!.checked;
       },
       isFocusInsideList: () => {
@@ -297,11 +299,10 @@ export class MDCList extends MDCComponent<MDCListFoundation> {
           element.setAttribute(attr, value);
         }
       },
-      setCheckedCheckboxOrRadioAtIndex: (index, isChecked) => {
+      setCheckedCheckboxOrRadioAtIndex: (index) => {
         const listItem = this.listElements[index];
         const toggleEl = listItem.querySelector<HTMLInputElement>(
             strings.CHECKBOX_RADIO_SELECTOR);
-        toggleEl!.checked = isChecked;
 
         const event = document.createEvent('Event');
         event.initEvent('change', true, true);
