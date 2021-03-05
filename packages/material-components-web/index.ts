@@ -43,3 +43,4 @@ import '@material/linear-progress/custom-element';
 import '@material/list/custom-element';
 import '@material/menu/custom-element';
 import '@material/radio/custom-element';
+import '@material/ripple/custom-element';
