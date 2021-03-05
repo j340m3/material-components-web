@@ -23,9 +23,8 @@
 
 import {MDCComponent} from '@material/base/component';
 import {SpecificEventListener} from '@material/base/types';
-import {FocusTrap} from '@material/dom/focus-trap';
+import {FocusTrap} from 'focus-trap';
 import {closest, matches} from '@material/dom/ponyfill';
-import {MDCRipple} from '@material/ripple/component';
 import {MDCDialogAdapter} from './adapter';
 import {MDCDialogFoundation} from './foundation';
 import {MDCDialogCloseEventDetail} from './types';
@@ -67,14 +66,13 @@ export class MDCDialog extends MDCComponent<MDCDialogFoundation> {
     return new MDCDialog(root);
   }
 
-  private buttonRipples!: MDCRipple[];       // assigned in initialize()
   private buttons!: HTMLElement[];           // assigned in initialize()
   private container!: HTMLElement;           // assigned in initialize()
   private content!: HTMLElement|null;        // assigned in initialize()
   private defaultButton!: HTMLElement|null;  // assigned in initialize()
 
   private focusTrap!: FocusTrap;  // assigned in initialSyncWithDOM()
-  private focusTrapFactory!:
+  private focusTrapFactory?:
       MDCDialogFocusTrapFactory;  // assigned in initialize()
 
   private handleClick!:
@@ -87,7 +85,7 @@ export class MDCDialog extends MDCComponent<MDCDialogFoundation> {
   private handleClosing!: () => void;     // assigned in initialSyncWithDOM()
 
   initialize(
-      focusTrapFactory: MDCDialogFocusTrapFactory = (el, focusOptions) => new FocusTrap(el, focusOptions),
+      focusTrapFactory?: MDCDialogFocusTrapFactory,
   ) {
     const container =
         this.root.querySelector<HTMLElement>(strings.CONTAINER_SELECTOR);
@@ -102,11 +100,6 @@ export class MDCDialog extends MDCComponent<MDCDialogFoundation> {
     this.defaultButton = this.root.querySelector<HTMLElement>(
         `[${strings.BUTTON_DEFAULT_ATTRIBUTE}]`);
     this.focusTrapFactory = focusTrapFactory;
-    this.buttonRipples = [];
-
-    for (const buttonEl of this.buttons) {
-      this.buttonRipples.push(new MDCRipple(buttonEl));
-    }
   }
 
   initialSyncWithDOM() {
@@ -114,10 +107,9 @@ export class MDCDialog extends MDCComponent<MDCDialogFoundation> {
         this.container, this.focusTrapFactory,
         this.getInitialFocusEl() || undefined);
 
-    this.handleClick = this.foundation.handleClick.bind(this.foundation);
+    this.handleClick = this.handleClick_.bind(this);
     this.handleKeydown = this.foundation.handleKeydown.bind(this.foundation);
-    this.handleDocumentKeydown =
-        this.foundation.handleDocumentKeydown.bind(this.foundation);
+    this.handleDocumentKeydown = this.handleDocumentKeydown_.bind(this);
     // this.handleLayout = this.layout.bind(this);
 
     this.handleOpening = () => {
@@ -133,6 +125,27 @@ export class MDCDialog extends MDCComponent<MDCDialogFoundation> {
     this.listen(strings.CLOSING_EVENT, this.handleClosing);
   }
 
+  handleClick_(evt: MouseEvent) {
+    const isScrim =
+        this.eventTargetMatches(evt.target, strings.SCRIM_SELECTOR);
+    // Check for scrim click first since it doesn't require querying ancestors.
+    if (isScrim && this.foundation.getScrimClickAction() !== '') {
+      this.close(this.scrimClickAction);
+      this.emit("MDCDialog:close", {});
+    }
+  }
+
+  eventTargetMatches(target: EventTarget | null, selector: string) {
+    return target ? matches(target as Element, selector) : false;
+  }
+
+  handleDocumentKeydown_(evt: KeyboardEvent) {
+    const isEscape = evt.key === 'Escape' || evt.keyCode === 27;
+    if (isEscape) {
+      this.emit("MDCDialog:close", {});
+    }
+  }
+
   destroy() {
     this.unlisten('click', this.handleClick);
     this.unlisten('keydown', this.handleKeydown);
@@ -140,9 +153,6 @@ export class MDCDialog extends MDCComponent<MDCDialogFoundation> {
     this.unlisten(strings.CLOSING_EVENT, this.handleClosing);
     this.handleClosing();
 
-    this.buttonRipples.forEach((ripple) => {
-      ripple.destroy();
-    });
     super.destroy();
   }
 
@@ -189,7 +199,7 @@ export class MDCDialog extends MDCComponent<MDCDialogFoundation> {
       notifyOpened: () => this.emit(strings.OPENED_EVENT, {}),
       notifyOpening: () => this.emit(strings.OPENING_EVENT, {}),
       releaseFocus: () => {
-        this.focusTrap.releaseFocus();
+        this.focusTrap.deactivate();
       },
       removeBodyClass: (className) => document.body.classList.remove(className),
       removeClass: (className) => this.root.classList.remove(className),
@@ -200,7 +210,7 @@ export class MDCDialog extends MDCComponent<MDCDialogFoundation> {
         });
       },
       trapFocus: () => {
-        this.focusTrap.trapFocus();
+        this.focusTrap.activate();
       },
       registerContentEventHandler: (evt, handler) => {
         if (this.content instanceof HTMLElement) {
