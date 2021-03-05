@@ -106,8 +106,6 @@ export class MDCTabBarFoundation extends MDCFoundation<MDCTabBarAdapter> {
 
     this.adapter.activateTabAtIndex(index, previousClientRect);
     this.scrollIntoView(index);
-
-    this.adapter.notifyTabActivated(index);
   }
 
   handleKeyDown(evt: KeyboardEvent) {
@@ -131,12 +129,12 @@ export class MDCTabBarFoundation extends MDCFoundation<MDCTabBarAdapter> {
 
       const index = this.determineTargetFromKey_(
           this.adapter.getPreviousActiveTabIndex(), key);
-      this.adapter.setActiveTab(index);
+      this.adapter.notifyTabActivated(index);
       this.scrollIntoView(index);
     } else {
       const focusedTabIndex = this.adapter.getFocusedTabIndex();
       if (this.isActivationKey_(key)) {
-        this.adapter.setActiveTab(focusedTabIndex);
+        this.adapter.notifyTabActivated(focusedTabIndex);
       } else {
         const index = this.determineTargetFromKey_(focusedTabIndex, key);
         this.adapter.focusTabAtIndex(index);
@@ -149,7 +147,7 @@ export class MDCTabBarFoundation extends MDCFoundation<MDCTabBarAdapter> {
    * Handles the MDCTab:interacted event
    */
   handleTabInteraction(evt: MDCTabInteractionEvent) {
-    this.adapter.setActiveTab(this.adapter.getIndexOfTabById(evt.detail.tabId));
+    this.adapter.notifyTabActivated(this.adapter.getIndexOfTabById(evt.detail.tabId));
   }
 
   /**

@@ -48,3 +48,4 @@ import '@material/select/custom-element';
 import '@material/slider/custom-element';
 import '@material/snackbar/custom-element';
 import '@material/switch/custom-element';
+import '@material/tab-bar/custom-element';

@@ -24,7 +24,7 @@
 import {MDCComponent} from '@material/base/component';
 import {CustomEventListener, SpecificEventListener} from '@material/base/types';
 import {MDCTabScroller, MDCTabScrollerFactory} from '@material/tab-scroller/component';
-import {MDCTab, MDCTabFactory} from '@material/tab/component';
+import {MDCTab} from '@material/tab/component';
 import {MDCTabFoundation} from '@material/tab/foundation';
 import {MDCTabInteractionEvent} from '@material/tab/types';
 import {MDCTabBarAdapter} from './adapter';
@@ -33,14 +33,11 @@ import {MDCTabBarActivatedEventDetail} from './types';
 
 const {strings} = MDCTabBarFoundation;
 
-let tabIdCounter = 0;
-
 export class MDCTabBar extends MDCComponent<MDCTabBarFoundation> {
   static attachTo(root: Element): MDCTabBar {
     return new MDCTabBar(root);
   }
 
-  private tabList_!: MDCTab[]; // assigned in initialize()
   private tabScroller_!: MDCTabScroller | null; // assigned in initialize()
   private handleTabInteraction_!: CustomEventListener<MDCTabInteractionEvent>; // assigned in initialSyncWithDOM()
   private handleKeyDown_!: SpecificEventListener<'keydown'>; // assigned in initialSyncWithDOM()
@@ -54,10 +51,8 @@ export class MDCTabBar extends MDCComponent<MDCTabBarFoundation> {
   }
 
   initialize(
-      tabFactory: MDCTabFactory = (el) => new MDCTab(el),
-      tabScrollerFactory: MDCTabScrollerFactory = (el) => new MDCTabScroller(el),
+      tabScrollerFactory: MDCTabScrollerFactory = (el) => new MDCTabScroller(el)
   ) {
-    this.tabList_ = this.instantiateTabs_(tabFactory);
     this.tabScroller_ = this.instantiateTabScroller_(tabScrollerFactory);
   }
 
@@ -81,7 +76,6 @@ export class MDCTabBar extends MDCComponent<MDCTabBarFoundation> {
     super.destroy();
     this.unlisten(MDCTabFoundation.strings.INTERACTED_EVENT, this.handleTabInteraction_);
     this.unlisten('keydown', this.handleKeyDown_);
-    this.tabList_.forEach((tab) => tab.destroy());
 
     if (this.tabScroller_) {
       this.tabScroller_.destroy();
@@ -101,7 +95,7 @@ export class MDCTabBar extends MDCComponent<MDCTabBarFoundation> {
       getOffsetWidth: () => (this.root as HTMLElement).offsetWidth,
       isRTL: () => window.getComputedStyle(this.root).getPropertyValue(
                        'direction') === 'rtl',
-      setActiveTab: (index) => this.foundation.activateTab(index),
+      setActiveTab: () => {},
       activateTabAtIndex: (index, clientRect) =>
           this.tabList_[index].activate(clientRect),
       deactivateTabAtIndex: (index) => this.tabList_[index].deactivate(),
@@ -162,14 +156,11 @@ export class MDCTabBar extends MDCComponent<MDCTabBarFoundation> {
     return [].slice.call(this.root.querySelectorAll(strings.TAB_SELECTOR));
   }
 
-  /**
-   * Instantiates tab components on all child tab elements
-   */
-  private instantiateTabs_(tabFactory: MDCTabFactory) {
-    return this.getTabElements_().map((el) => {
-      el.id = el.id || `mdc-tab-${++tabIdCounter}`;
-      return tabFactory(el);
-    });
+  get tabList_(): MDCTab[] {
+    return this.getTabElements_().map((el: any) => {
+      el.init();
+      return el.tab_;
+    })
   }
 
   /**
