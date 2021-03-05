@@ -28,7 +28,6 @@ import {matches} from '@material/dom/ponyfill';
 import {MDCRippleAdapter} from '@material/ripple/adapter';
 import {MDCRipple} from '@material/ripple/component';
 import {MDCRippleFoundation} from '@material/ripple/foundation';
-
 import {MDCSliderAdapter} from './adapter';
 import {cssClasses, events} from './constants';
 import {MDCSliderFoundation} from './foundation';
