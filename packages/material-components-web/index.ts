@@ -34,3 +34,4 @@ import '@material/circular-progress/custom-element';
 import '@material/data-table/custom-element';
 import '@material/dialog/custom-element';
 import '@material/drawer/custom-element';
+import '@material/fab/custom-element';
