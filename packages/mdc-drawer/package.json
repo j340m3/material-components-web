@@ -19,6 +19,7 @@
     "directory": "packages/mdc-drawer"
   },
   "dependencies": {
+    "focus-trap": "^6.6.1",
     "@material/animation": "^11.0.0",
     "@material/base": "^11.0.0",
     "@material/dom": "^11.0.0",
@@ -30,6 +31,7 @@
     "@material/shape": "^11.0.0",
     "@material/theme": "^11.0.0",
     "@material/typography": "^11.0.0",
+    "@material/utils": "^11.0.0",
     "tslib": "^2.1.0"
   }
 }
