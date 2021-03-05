@@ -98,7 +98,7 @@ export class MDCTabBar extends MDCComponent<MDCTabBarFoundation> {
       getScrollContentWidth: () => this.tabScroller_!.getScrollContentWidth(),
       getOffsetWidth: () => (this.root_ as HTMLElement).offsetWidth,
       isRTL: () => window.getComputedStyle(this.root_).getPropertyValue('direction') === 'rtl',
-      setActiveTab: (index) => this.foundation_.activateTab(index),
+      setActiveTab: () => {},
       activateTabAtIndex: (index, clientRect) => this.tabList_[index].activate(clientRect),
       deactivateTabAtIndex: (index) => this.tabList_[index].deactivate(),
       focusTabAtIndex: (index) => this.tabList_[index].focus(),
