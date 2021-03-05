@@ -23,6 +23,7 @@
     "@material/feature-targeting": "^6.0.0",
     "@material/progress-indicator": "^6.0.0",
     "@material/theme": "^6.0.0",
+    "@material/utils": "^6.0.0",
     "tslib": "^1.9.3"
   }
 }
