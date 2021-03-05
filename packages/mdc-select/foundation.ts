@@ -91,8 +91,6 @@ export class MDCSelectFoundation extends MDCFoundation<MDCSelectAdapter> {
 
   // Index of the currently selected menu item.
   private selectedIndex: number = numbers.UNSET_INDEX;
-  // VALUE_ATTR values of the menu items.
-  private readonly menuItemValues: string[];
   // Disabled state
   private disabled = false;
   // isMenuOpen is used to track the state of the menu by listening to the
@@ -112,7 +110,6 @@ export class MDCSelectFoundation extends MDCFoundation<MDCSelectAdapter> {
     this.leadingIcon = foundationMap.leadingIcon;
     this.helperText = foundationMap.helperText;
 
-    this.menuItemValues = this.adapter_.getMenuItemValues();
     this.setDisabled(this.adapter_.hasClass(cssClasses.DISABLED));
   }
 
@@ -155,19 +152,6 @@ export class MDCSelectFoundation extends MDCFoundation<MDCSelectAdapter> {
     this.handleChange();
   }
 
-  setValue(value: string) {
-    const index = this.menuItemValues.indexOf(value);
-    this.setSelectedIndex(index);
-  }
-
-  getValue() {
-    const listItem = this.adapter_.getSelectedMenuItem();
-    if (listItem) {
-      return this.adapter_.getMenuItemAttr(listItem, strings.VALUE_ATTR) || '';
-    }
-    return '';
-  }
-
   getDisabled() {
     return this.disabled;
   }
@@ -201,7 +185,8 @@ export class MDCSelectFoundation extends MDCFoundation<MDCSelectAdapter> {
 
   layout() {
     if (this.adapter_.hasLabel()) {
-      const openNotch = this.getValue().length > 0;
+      const openNotch = this.selectedIndex !== numbers.UNSET_INDEX &&
+        this.adapter_.getMenuItemTextAtIndex(this.selectedIndex).length > 0;
       this.notchOutline(openNotch);
     }
   }
@@ -234,7 +219,6 @@ export class MDCSelectFoundation extends MDCFoundation<MDCSelectAdapter> {
    */
   handleChange() {
     this.updateLabel();
-    this.adapter_.notifyChange(this.getValue());
 
     const isRequired = this.adapter_.hasClass(cssClasses.REQUIRED);
     if (isRequired) {
@@ -354,8 +338,11 @@ export class MDCSelectFoundation extends MDCFoundation<MDCSelectAdapter> {
     if (this.adapter_.hasClass(cssClasses.REQUIRED) && !this.adapter_.hasClass(cssClasses.DISABLED)) {
       // See notes for required attribute under https://www.w3.org/TR/html52/sec-forms.html#the-select-element
       // TL;DR: Invalid if no index is selected, or if the first index is selected and has an empty value.
-      return this.selectedIndex !== numbers.UNSET_INDEX &&
-          (this.selectedIndex !== 0 || Boolean(this.getValue()));
+      return this.selectedIndex !== numbers.UNSET_INDEX && (
+        this.selectedIndex !== 0 || (
+          this.adapter_.getMenuItemTextAtIndex(this.selectedIndex).length > 0
+        )
+      );
     }
     return true;
   }
@@ -373,18 +360,13 @@ export class MDCSelectFoundation extends MDCFoundation<MDCSelectAdapter> {
     return this.adapter_.getSelectAnchorAttr('aria-required') === 'true';
   }
 
-  init() {
+  initMenu() {
     const anchorEl = this.adapter_.getAnchorElement();
     if (anchorEl) {
       this.adapter_.setMenuAnchorElement(anchorEl);
       this.adapter_.setMenuAnchorCorner(Corner.BOTTOM_START);
     }
     this.adapter_.setMenuWrapFocus(false);
-
-    const value = this.getValue();
-    if (value) {
-      this.setValue(value);
-    }
 
     // Initially sync floating label
     this.updateLabel();
@@ -394,8 +376,8 @@ export class MDCSelectFoundation extends MDCFoundation<MDCSelectAdapter> {
    * Notches the outline and floats the label when appropriate.
    */
   private updateLabel() {
-    const value = this.getValue();
-    const optionHasValue = value.length > 0;
+    const optionHasValue = this.selectedIndex !== numbers.UNSET_INDEX &&
+      this.adapter_.getMenuItemTextAtIndex(this.selectedIndex).length > 0;
 
     if (this.adapter_.hasLabel()) {
       this.notchOutline(optionHasValue);
