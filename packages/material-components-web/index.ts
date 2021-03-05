@@ -36,3 +36,4 @@ import '@material/dialog/custom-element';
 import '@material/drawer/custom-element';
 import '@material/fab/custom-element';
 import '@material/form-field/custom-element';
+import '@material/icon-button/custom-element';
