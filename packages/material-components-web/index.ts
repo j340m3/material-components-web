@@ -28,3 +28,5 @@ import '@webcomponents/custom-elements';
 import '@material/button/custom-element';
 import '@material/card/custom-element';
 import '@material/checkbox/custom-element';
+import '@material/chips/chip-set/custom-element';
+import '@material/chips/chip/custom-element';

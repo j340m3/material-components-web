@@ -295,6 +295,7 @@ export class MDCChipFoundation extends MDCFoundation<MDCChipAdapter> {
     if (this.shouldNotifyInteraction_(evt)) {
       this.adapter.notifyInteraction();
       this.setPrimaryActionFocusable_(this.getFocusBehavior_());
+      evt.preventDefault();
       return;
     }
 
