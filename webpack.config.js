@@ -45,7 +45,5 @@ const OUTPUT = {
 
 module.exports = [
   jsBundleFactory.createMainJsCombined({output: OUTPUT}),
-  jsBundleFactory.createMainJsALaCarte({output: OUTPUT}),
   cssBundleFactory.createMainCssCombined({output: OUTPUT}),
-  cssBundleFactory.createMainCssALaCarte({output: OUTPUT}),
 ];

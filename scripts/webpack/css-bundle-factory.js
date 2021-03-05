@@ -120,7 +120,7 @@ class CssBundleFactory {
     return this.createCustomCss({
       bundleName: 'main-css-combined',
       chunks: {
-        'material-components-web': getAbsolutePath('/packages/material-components-web/material-components-web.scss'),
+        'material-components-web-elm': getAbsolutePath('/packages/material-components-web/material-components-web.scss'),
       },
       output: {
         fsDirAbsolutePath,
