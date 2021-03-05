@@ -200,15 +200,19 @@ export class MDCTextField extends MDCComponent<MDCTextFieldFoundation> implement
     this.input_.required = required;
   }
 
-  get pattern(): string {
+  get pattern(): null|string {
     return this.input_.pattern;
   }
 
   /**
    * @param pattern Sets the input element's validation pattern.
    */
-  set pattern(pattern: string) {
-    this.input_.pattern = pattern;
+  set pattern(pattern: null|string) {
+    if (pattern === null) {
+      delete this.input_.pattern;
+    } else {
+      this.input_.pattern = pattern;
+    }
   }
 
   get minLength(): number {
@@ -219,7 +223,11 @@ export class MDCTextField extends MDCComponent<MDCTextFieldFoundation> implement
    * @param minLength Sets the input element's minLength.
    */
   set minLength(minLength: number) {
-    this.input_.minLength = minLength;
+    if (minLength < 0) {
+      this.input_.removeAttribute("minLength");
+    } else {
+      this.input_.minLength = minLength;
+    }
   }
 
   get maxLength(): number {
@@ -230,7 +238,6 @@ export class MDCTextField extends MDCComponent<MDCTextFieldFoundation> implement
    * @param maxLength Sets the input element's maxLength.
    */
   set maxLength(maxLength: number) {
-    // Chrome throws exception if maxLength is set to a value less than zero
     if (maxLength < 0) {
       this.input_.removeAttribute('maxLength');
     } else {
