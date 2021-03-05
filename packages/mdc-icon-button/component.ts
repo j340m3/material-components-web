@@ -43,6 +43,7 @@ export class MDCIconButtonToggle extends MDCComponent<MDCIconButtonToggleFoundat
     this.handleClick = () => {
       this.foundation.handleClick();
     };
+    this.handleClick_ = this.handleClick_.bind(this);
     this.listen('click', this.handleClick);
   }
 
@@ -58,16 +59,17 @@ export class MDCIconButtonToggle extends MDCComponent<MDCIconButtonToggleFoundat
     const adapter: MDCIconButtonToggleAdapter = {
       addClass: (className) => this.root.classList.add(className),
       hasClass: (className) => this.root.classList.contains(className),
-      notifyChange: (evtData) => {
-        this.emit<MDCIconButtonToggleEventDetail>(
-            strings.CHANGE_EVENT, evtData);
-      },
+      notifyChange: () => {},
       removeClass: (className) => this.root.classList.remove(className),
       getAttr: (attrName) => this.root.getAttribute(attrName),
       setAttr: (attrName, attrValue) =>
           this.root.setAttribute(attrName, attrValue),
     };
     return new MDCIconButtonToggleFoundation(adapter);
+  }
+
+  handleClick_() {
+    this.emit<MDCIconButtonToggleEventDetail>(strings.CHANGE_EVENT, { isOn: !this.on });
   }
 
   get ripple(): MDCRipple {
