@@ -24,3 +24,5 @@
 import './native-shim.es5.js';
 
 import '@webcomponents/custom-elements';
+
+import '@material/button/custom-element';
