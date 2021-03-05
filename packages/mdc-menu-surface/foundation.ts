@@ -264,25 +264,6 @@ export class MDCMenuSurfaceFoundation extends MDCFoundation<MDCMenuSurfaceAdapte
 
   }
 
-  /** Handle clicks and close if not within menu-surface element. */
-  handleBodyClick(evt: MouseEvent) {
-    const el = evt.target as Element;
-    if (this.adapter_.isElementInContainer(el)) {
-      return;
-    }
-    this.close();
-  }
-
-  /** Handle keys that close the surface. */
-  handleKeydown(evt: KeyboardEvent) {
-    const {keyCode, key} = evt;
-
-    const isEscape = key === 'Escape' || keyCode === 27;
-    if (isEscape) {
-      this.close();
-    }
-  }
-
   private autoPosition_() {
     // Compute measurements for autoposition methods reuse.
     this.measurements_ = this.getAutoLayoutMeasurements_();

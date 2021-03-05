@@ -58,8 +58,8 @@ export class MDCMenuSurface extends MDCComponent<MDCMenuSurfaceFoundation> {
       this.setFixedPosition(true);
     }
 
-    this.handleKeydown_ = (evt) => this.foundation_.handleKeydown(evt);
-    this.handleBodyClick_ = (evt) => this.foundation_.handleBodyClick(evt);
+    this.handleKeydown_ = (evt) => this.handleKeydown(evt);
+    this.handleBodyClick_ = (evt) => this.handleBodyClick(evt);
 
     // capture so that no race between handleBodyClick and quickOpen when
     // menusurface opened on button click which registers this listener
@@ -72,9 +72,33 @@ export class MDCMenuSurface extends MDCComponent<MDCMenuSurfaceFoundation> {
     this.listen(strings.CLOSED_EVENT, this.deregisterBodyClickListener_);
   }
 
+  /** Handle clicks and close if not within menu-surface element. */
+  handleBodyClick(evt: MouseEvent) {
+    const el = evt.target as Element;
+    if (this.isElementInContainer(el)) {
+      return;
+    }
+    this.emit("MDCMenuSurface:close", {}, true);
+  }
+
+  /** Handle keys that close the surface. */
+  handleKeydown(evt: KeyboardEvent) {
+    const {keyCode, key} = evt;
+
+    const isEscape = key === 'Escape' || keyCode === 27;
+    if (isEscape) {
+      this.emit("MDCMenuSurface:close", {}, true);
+    }
+  }
+
+  isElementInContainer(el: Element) {
+    return this.root_.contains(el);
+  }
+
   destroy() {
     this.unlisten('keydown', this.handleKeydown_);
     this.unlisten(strings.OPENED_EVENT, this.registerBodyClickListener_);
+    this.deregisterBodyClickListener_();
     this.unlisten(strings.CLOSED_EVENT, this.deregisterBodyClickListener_);
     super.destroy();
   }
@@ -144,7 +168,7 @@ export class MDCMenuSurface extends MDCComponent<MDCMenuSurfaceFoundation> {
       hasAnchor: () => !!this.anchorElement,
       notifyClose: () => this.emit(MDCMenuSurfaceFoundation.strings.CLOSED_EVENT, {}),
       notifyOpen: () => this.emit(MDCMenuSurfaceFoundation.strings.OPENED_EVENT, {}),
-      isElementInContainer: (el) => this.root_.contains(el),
+      isElementInContainer: (el) => this.isElementInContainer(el),
       isRtl: () => getComputedStyle(this.root_).getPropertyValue('direction') === 'rtl',
       setTransformOrigin: (origin) => {
         const propertyName = `${util.getTransformPropertyName(window)}-origin`;

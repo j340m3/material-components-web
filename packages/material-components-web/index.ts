@@ -41,3 +41,4 @@ import '@material/image-list/custom-element';
 import '@material/layout-grid/custom-element';
 import '@material/linear-progress/custom-element';
 import '@material/list/custom-element';
+import '@material/menu/custom-element';
