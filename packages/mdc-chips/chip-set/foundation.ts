@@ -83,9 +83,6 @@ export class MDCChipSetFoundation extends MDCFoundation<MDCChipSetAdapter> {
   handleChipInteraction({chipId}: MDCChipInteractionEventDetail) {
     const index = this.adapter_.getIndexOfChipById(chipId);
     this.removeFocusFromChipsExcept_(index);
-    if (this.adapter_.hasClass(cssClasses.CHOICE) || this.adapter_.hasClass(cssClasses.FILTER)) {
-      this.toggleSelect_(chipId);
-    }
   }
 
   /**
@@ -217,17 +214,6 @@ export class MDCChipSetFoundation extends MDCFoundation<MDCChipSetAdapter> {
     this.deselect_(chipId, true);
   }
 
-  /**
-   * Toggles selection of the chip with the given id.
-   */
-  private toggleSelect_(chipId: string) {
-    if (this.selectedChipIds_.indexOf(chipId) >= 0) {
-      this.deselectAndNotifyClients_(chipId);
-    } else {
-      this.selectAndNotifyClients_(chipId);
-    }
-  }
-
   private removeFocusFromChipsExcept_(index: number) {
     const chipCount = this.adapter_.getChipListCount();
     for (let i = 0; i < chipCount; i++) {
@@ -235,10 +221,6 @@ export class MDCChipSetFoundation extends MDCFoundation<MDCChipSetAdapter> {
         this.adapter_.removeFocusFromChipAtIndex(i);
       }
     }
-  }
-
-  private selectAndNotifyClients_(chipId: string) {
-    this.select_(chipId, true);
   }
 
   private select_(chipId: string, shouldNotifyClients: boolean) {

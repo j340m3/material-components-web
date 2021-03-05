@@ -23,7 +23,7 @@
 
 import {MDCComponent} from '@material/base/component';
 import {announce} from '@material/dom/announce';
-import {MDCChip, MDCChipFactory} from '../chip/component';
+import {MDCChip} from '../chip/component';
 import {MDCChipFoundation} from '../chip/foundation';
 import {MDCChipInteractionEvent, MDCChipNavigationEvent, MDCChipRemovalEvent,
     MDCChipSelectionEvent} from '../chip/types';
@@ -31,9 +31,6 @@ import {MDCChipSetAdapter} from './adapter';
 import {MDCChipSetFoundation} from './foundation';
 
 const {INTERACTION_EVENT, SELECTION_EVENT, REMOVAL_EVENT, NAVIGATION_EVENT} = MDCChipFoundation.strings;
-const {CHIP_SELECTOR} = MDCChipSetFoundation.strings;
-
-let idCounter = 0;
 
 export class MDCChipSet extends MDCComponent<MDCChipSetFoundation> {
   static attachTo(root: Element) {
@@ -61,9 +58,11 @@ export class MDCChipSet extends MDCComponent<MDCChipSetFoundation> {
   /**
    * @param chipFactory A function which creates a new MDCChip.
    */
-  initialize(chipFactory: MDCChipFactory = (el) => new MDCChip(el)) {
-    this.chipFactory_ = chipFactory;
-    this.chips_ = this.instantiateChips_(this.chipFactory_);
+  initialize() {
+    this.chipFactory_ = (el: any) => {
+      return el.chip_;
+    };
+    this.chips_ = [];
   }
 
   initialSyncWithDOM() {
@@ -83,7 +82,6 @@ export class MDCChipSet extends MDCComponent<MDCChipSetFoundation> {
         this.foundation_.handleChipNavigation(evt.detail);
     this.listen(INTERACTION_EVENT, this.handleChipInteraction_);
     this.listen(SELECTION_EVENT, this.handleChipSelection_);
-    this.listen(REMOVAL_EVENT, this.handleChipRemoval_);
     this.listen(NAVIGATION_EVENT, this.handleChipNavigation_);
   }
 
@@ -104,8 +102,10 @@ export class MDCChipSet extends MDCComponent<MDCChipSetFoundation> {
    * Adds a new chip object to the chip set from the given chip element.
    */
   addChip(chipEl: Element) {
-    chipEl.id = chipEl.id || `mdc-chip-${++idCounter}`;
     this.chips_.push(this.chipFactory_(chipEl));
+    if (this.chips_.length === 1) {
+      this.chips_[0].makePrimaryActionFocusable();
+    }
   }
 
   getDefaultFoundation() {
@@ -131,9 +131,13 @@ export class MDCChipSet extends MDCComponent<MDCChipSetFoundation> {
           'rtl',
       removeChipAtIndex: (index) => {
         if (index >= 0 && index < this.chips_.length) {
-          this.chips_[index].destroy();
-          this.chips_[index].remove();
           this.chips_.splice(index, 1);
+          if (
+            this.chips_.length > 0
+            && !this.chips_.some((chip) => chip.isPrimaryActionFocusable())
+          ) {
+            this.chips_[Math.max(0, index - 1)].makePrimaryActionFocusable();
+          }
         }
       },
       removeFocusFromChipAtIndex: (index) => {
@@ -146,18 +150,6 @@ export class MDCChipSet extends MDCComponent<MDCChipSetFoundation> {
       },
     };
     return new MDCChipSetFoundation(adapter);
-  }
-
-  /**
-   * Instantiates chip components on all of the chip set's child chip elements.
-   */
-  private instantiateChips_(chipFactory: MDCChipFactory): MDCChip[] {
-    const chipElements: Element[] =
-        [].slice.call(this.root_.querySelectorAll(CHIP_SELECTOR));
-    return chipElements.map((el) => {
-      el.id = el.id || `mdc-chip-${++idCounter}`;
-      return chipFactory(el);
-    });
   }
 
   /**
