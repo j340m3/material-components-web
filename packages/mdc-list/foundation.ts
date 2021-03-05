@@ -69,9 +69,8 @@ export class MDCListFoundation extends MDCFoundation<MDCListAdapter> {
   private wrapFocus_ = false;
   private isVertical_ = true;
   private isSingleSelectionList_ = false;
-  private selectedIndex_: MDCListIndex = numbers.UNSET_INDEX;
+  private selectedIndex_: MDCListIndex = -1;
   private focusedItemIndex_ = numbers.UNSET_INDEX;
-  private useActivatedClass_ = false;
   private ariaCurrentAttrValue_: string | null = null;
   private isCheckboxList_ = false;
   private isRadioList_ = false;
@@ -113,13 +112,6 @@ export class MDCListFoundation extends MDCFoundation<MDCListAdapter> {
     this.isSingleSelectionList_ = value;
   }
 
-  /**
-   * Sets the useActivatedClass_ private variable.
-   */
-  setUseActivatedClass(useActivated: boolean) {
-    this.useActivatedClass_ = useActivated;
-  }
-
   getSelectedIndex(): MDCListIndex {
     return this.selectedIndex_;
   }
@@ -132,9 +124,9 @@ export class MDCListFoundation extends MDCFoundation<MDCListAdapter> {
     if (this.isCheckboxList_) {
       this.setCheckboxAtIndex_(index as number[]);
     } else if (this.isRadioList_) {
-      this.setRadioAtIndex_(index as number);
+      this.setCheckboxAtIndex_(index as number[]);
     } else {
-      this.setSingleSelectionAtIndex_(index as number);
+      this.setSingleSelectionAtIndex_(index as number[]);
     }
   }
 
@@ -323,10 +315,8 @@ export class MDCListFoundation extends MDCFoundation<MDCListAdapter> {
     }
 
     if (isEnabled) {
-      this.adapter_.removeClassForElementIndex(itemIndex, cssClasses.LIST_ITEM_DISABLED_CLASS);
       this.adapter_.setAttributeForElementIndex(itemIndex, strings.ARIA_DISABLED, 'false');
     } else {
-      this.adapter_.addClassForElementIndex(itemIndex, cssClasses.LIST_ITEM_DISABLED_CLASS);
       this.adapter_.setAttributeForElementIndex(itemIndex, strings.ARIA_DISABLED, 'true');
     }
   }
@@ -343,21 +333,15 @@ export class MDCListFoundation extends MDCFoundation<MDCListAdapter> {
     }
   }
 
-  private setSingleSelectionAtIndex_(index: number) {
-    if (this.selectedIndex_ === index) {
-      return;
-    }
+  private setSingleSelectionAtIndex_(index: number[]) {
+    for (let i = 0; i < this.adapter_.getListItemCount(); i++) {
+      let isChecked = false;
+      if (index.indexOf(i) >= 0) {
+        isChecked = true;
+      }
 
-    let selectedClassName = cssClasses.LIST_ITEM_SELECTED_CLASS;
-    if (this.useActivatedClass_) {
-      selectedClassName = cssClasses.LIST_ITEM_ACTIVATED_CLASS;
+      this.setAriaForSingleSelectionAtIndex_(i, isChecked);
     }
-
-    if (this.selectedIndex_ !== numbers.UNSET_INDEX) {
-      this.adapter_.removeClassForElementIndex(this.selectedIndex_ as number, selectedClassName);
-    }
-    this.adapter_.addClassForElementIndex(index, selectedClassName);
-    this.setAriaForSingleSelectionAtIndex_(index);
 
     this.selectedIndex_ = index;
   }
@@ -365,7 +349,7 @@ export class MDCListFoundation extends MDCFoundation<MDCListAdapter> {
   /**
    * Sets aria attribute for single selection at given index.
    */
-  private setAriaForSingleSelectionAtIndex_(index: number) {
+  private setAriaForSingleSelectionAtIndex_(index: number, isChecked: boolean) {
     // Detect the presence of aria-current and get the value only during list initialization when it is in unset state.
     if (this.selectedIndex_ === numbers.UNSET_INDEX) {
       this.ariaCurrentAttrValue_ =
@@ -374,28 +358,8 @@ export class MDCListFoundation extends MDCFoundation<MDCListAdapter> {
 
     const isAriaCurrent = this.ariaCurrentAttrValue_ !== null;
     const ariaAttribute = isAriaCurrent ? strings.ARIA_CURRENT : strings.ARIA_SELECTED;
-
-    if (this.selectedIndex_ !== numbers.UNSET_INDEX) {
-      this.adapter_.setAttributeForElementIndex(this.selectedIndex_ as number, ariaAttribute, 'false');
-    }
-
     const ariaAttributeValue = isAriaCurrent ? this.ariaCurrentAttrValue_ : 'true';
-    this.adapter_.setAttributeForElementIndex(index, ariaAttribute, ariaAttributeValue as string);
-  }
-
-  /**
-   * Toggles radio at give index. Radio doesn't change the checked state if it is already checked.
-   */
-  private setRadioAtIndex_(index: number) {
-    this.adapter_.setCheckedCheckboxOrRadioAtIndex(index, true);
-
-    if (this.selectedIndex_ !== numbers.UNSET_INDEX) {
-      this.adapter_.setAttributeForElementIndex(this.selectedIndex_ as number, strings.ARIA_CHECKED, 'false');
-    }
-
-    this.adapter_.setAttributeForElementIndex(index, strings.ARIA_CHECKED, 'true');
-
-    this.selectedIndex_ = index;
+    this.adapter_.setAttributeForElementIndex(index, ariaAttribute, isChecked ? ariaAttributeValue as string : 'false');
   }
 
   private setCheckboxAtIndex_(index: number[]) {
@@ -405,7 +369,6 @@ export class MDCListFoundation extends MDCFoundation<MDCListAdapter> {
         isChecked = true;
       }
 
-      this.adapter_.setCheckedCheckboxOrRadioAtIndex(i, isChecked);
       this.adapter_.setAttributeForElementIndex(i, strings.ARIA_CHECKED, isChecked ? 'true' : 'false');
     }
 
@@ -447,20 +410,11 @@ export class MDCListFoundation extends MDCFoundation<MDCListAdapter> {
 
   private isIndexValid_(index: MDCListIndex) {
     if (index instanceof Array) {
-      if (!this.isCheckboxList_) {
-        throw new Error('MDCListFoundation: Array of index is only supported for checkbox based list');
-      }
-
       if (index.length === 0) {
         return true;
       } else {
         return index.some((i) => this.isIndexInRange_(i));
       }
-    } else if (typeof index === 'number') {
-      if (this.isCheckboxList_) {
-        throw new Error('MDCListFoundation: Expected array of index for checkbox based list but got number: ' + index);
-      }
-      return this.isIndexInRange_(index);
     } else {
       return false;
     }
@@ -476,10 +430,10 @@ export class MDCListFoundation extends MDCFoundation<MDCListAdapter> {
    * User interaction should not toggle list item(s) when disabled.
    */
   private setSelectedIndexOnAction_(index: number, toggleCheckbox = true) {
-    if (this.isCheckboxList_) {
+    if (this.isCheckboxList_ || this.isRadioList_) {
       this.toggleCheckboxAtIndex_(index, toggleCheckbox);
     } else {
-      this.setSelectedIndex(index);
+      this.setSelectedIndex([index]);
     }
   }
 
@@ -490,19 +444,6 @@ export class MDCListFoundation extends MDCFoundation<MDCListAdapter> {
       isChecked = !isChecked;
       this.adapter_.setCheckedCheckboxOrRadioAtIndex(index, isChecked);
     }
-
-    this.adapter_.setAttributeForElementIndex(index, strings.ARIA_CHECKED, isChecked ? 'true' : 'false');
-
-    // If none of the checkbox items are selected and selectedIndex is not initialized then provide a default value.
-    let selectedIndexes = this.selectedIndex_ === numbers.UNSET_INDEX ? [] : (this.selectedIndex_ as number[]).slice();
-
-    if (isChecked) {
-      selectedIndexes.push(index);
-    } else {
-      selectedIndexes = selectedIndexes.filter((i) => i !== index);
-    }
-
-    this.selectedIndex_ = selectedIndexes;
   }
 }
 

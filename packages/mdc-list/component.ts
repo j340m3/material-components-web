@@ -118,10 +118,6 @@ export class MDCList extends MDCComponent<MDCListFoundation> {
       this.selectedIndex =
           [].map.call(preselectedItems, (listItem: Element) => this.listElements.indexOf(listItem)) as number[];
     } else if (singleSelectedListItem) {
-      if (singleSelectedListItem.classList.contains(cssClasses.LIST_ITEM_ACTIVATED_CLASS)) {
-        this.foundation_.setUseActivatedClass(true);
-      }
-
       this.singleSelection = true;
       this.selectedIndex = this.listElements.indexOf(singleSelectedListItem);
     } else if (radioSelectedListItem) {
@@ -167,7 +163,7 @@ export class MDCList extends MDCComponent<MDCListFoundation> {
       },
       isCheckboxCheckedAtIndex: (index) => {
         const listItem = this.listElements[index];
-        const toggleEl = listItem.querySelector<HTMLInputElement>(strings.CHECKBOX_SELECTOR);
+        const toggleEl = listItem.querySelector<HTMLInputElement>(strings.CHECKBOX_RADIO_SELECTOR);
         return toggleEl!.checked;
       },
       isFocusInsideList: () => {
@@ -190,10 +186,9 @@ export class MDCList extends MDCComponent<MDCListFoundation> {
           element.setAttribute(attr, value);
         }
       },
-      setCheckedCheckboxOrRadioAtIndex: (index, isChecked) => {
+      setCheckedCheckboxOrRadioAtIndex: (index) => {
         const listItem = this.listElements[index];
         const toggleEl = listItem.querySelector<HTMLInputElement>(strings.CHECKBOX_RADIO_SELECTOR);
-        toggleEl!.checked = isChecked;
 
         const event = document.createEvent('Event');
         event.initEvent('change', true, true);
