@@ -60,12 +60,8 @@ export class MDCMenuSurface extends MDCComponent<MDCMenuSurfaceFoundation> {
       this.setFixedPosition(true);
     }
 
-    this.handleKeydown = (event) => {
-      this.foundation.handleKeydown(event);
-    };
-    this.handleBodyClick = (event) => {
-      this.foundation.handleBodyClick(event);
-    };
+    this.handleKeydown = (evt) => this.handleKeydown_(evt);
+    this.handleBodyClick = (evt) => this.handleBodyClick_(evt);
 
     // capture so that no race between handleBodyClick and quickOpen when
     // menusurface opened on button click which registers this listener
@@ -83,10 +79,34 @@ export class MDCMenuSurface extends MDCComponent<MDCMenuSurfaceFoundation> {
     this.listen(strings.CLOSED_EVENT, this.deregisterBodyClickListener);
   }
 
+  /** Handle clicks and close if not within menu-surface element. */
+  handleBodyClick_(evt: MouseEvent) {
+    const el = evt.target as Element;
+    if (this.isElementInContainer(el)) {
+      return;
+    }
+    this.emit("MDCMenuSurface:close", {}, true);
+  }
+
+  /** Handle keys that close the surface. */
+  handleKeydown_(evt: KeyboardEvent) {
+    const {keyCode, key} = evt;
+
+    const isEscape = key === 'Escape' || keyCode === 27;
+    if (isEscape) {
+      this.emit("MDCMenuSurface:close", {}, true);
+    }
+  }
+
+  isElementInContainer(el: Element) {
+    return this.root.contains(el);
+  }
+
   destroy() {
     this.unlisten('keydown', this.handleKeydown);
     this.unlisten(strings.OPENED_EVENT, this.registerBodyClickListener);
     this.unlisten(strings.CLOSED_EVENT, this.deregisterBodyClickListener);
+    this.deregisterBodyClickListener();
     super.destroy();
   }
 
