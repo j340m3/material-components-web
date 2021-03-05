@@ -23,7 +23,6 @@
 
 import {MDCComponent} from '@material/base/component';
 import {SpecificEventListener} from '@material/base/types';
-import {MDCRipple, MDCRippleFactory} from '@material/ripple/component';
 import {MDCTopAppBarAdapter} from './adapter';
 import {cssClasses, strings} from './constants';
 import {MDCFixedTopAppBarFoundation} from './fixed/foundation';
@@ -40,24 +39,10 @@ export class MDCTopAppBar extends MDCComponent<MDCTopAppBarBaseFoundation> {
   private handleWindowResize_!: SpecificEventListener<'resize'>; // assigned in initialSyncWithDOM()
   private handleTargetScroll_!: SpecificEventListener<'scroll'>; // assigned in initialSyncWithDOM()
   private navIcon_!: Element | null;
-  private iconRipples_!: MDCRipple[];
   private scrollTarget_!: EventTarget;
 
-  initialize(rippleFactory: MDCRippleFactory = (el) => MDCRipple.attachTo(el)) {
+  initialize() {
     this.navIcon_ = this.root_.querySelector(strings.NAVIGATION_ICON_SELECTOR);
-
-    // Get all icons in the toolbar and instantiate the ripples
-    const icons: Element[] = [].slice.call(this.root_.querySelectorAll(strings.ACTION_ITEM_SELECTOR));
-    if (this.navIcon_) {
-      icons.push(this.navIcon_);
-    }
-
-    this.iconRipples_ = icons.map((icon) => {
-      const ripple = rippleFactory(icon);
-      ripple.unbounded = true;
-      return ripple;
-    });
-
     this.scrollTarget_ = window;
   }
 
@@ -80,7 +65,6 @@ export class MDCTopAppBar extends MDCComponent<MDCTopAppBarBaseFoundation> {
   }
 
   destroy() {
-    this.iconRipples_.forEach((iconRipple) => iconRipple.destroy());
     this.scrollTarget_.removeEventListener('scroll', this.handleTargetScroll_ as EventListener);
     if (this.navIcon_) {
       this.navIcon_.removeEventListener('click', this.handleNavigationClick_ as EventListener);
