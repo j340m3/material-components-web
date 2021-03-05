@@ -50,3 +50,4 @@ import '@material/snackbar/custom-element';
 import '@material/switch/custom-element';
 import '@material/tab-bar/custom-element';
 import '@material/textfield/custom-element';
+import '@material/top-app-bar/custom-element';
