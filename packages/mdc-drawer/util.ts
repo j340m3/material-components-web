@@ -21,19 +21,21 @@
  * THE SOFTWARE.
  */
 
-import {FocusOptions, FocusTrap} from '@material/dom/focus-trap';
+import {default as createFocusTrap, FocusTrap, Options} from 'focus-trap';
 
 export type MDCDrawerFocusTrapFactory = (
-    element: HTMLElement,
-    options: FocusOptions,
+    element: HTMLElement | string,
+    userOptions?: Options,
 ) => FocusTrap;
 
 export function createFocusTrapInstance(
     surfaceEl: HTMLElement,
-    focusTrapFactory: MDCDrawerFocusTrapFactory,
+    focusTrapFactory: MDCDrawerFocusTrapFactory = createFocusTrap as unknown as MDCDrawerFocusTrapFactory,
 ): FocusTrap {
   return focusTrapFactory(surfaceEl, {
-    // Component handles focusing on active nav item.
-    skipInitialFocus: true, 
+    clickOutsideDeactivates: true, // Allow handling of scrim clicks.
+    escapeDeactivates: false, // Foundation handles ESC key.
+    initialFocus: undefined, // Component handles focusing on active nav items.
+    returnFocusOnDeactivate: false, // Component handles restoring focus.
   });
 }

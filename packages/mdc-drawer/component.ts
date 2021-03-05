@@ -23,8 +23,8 @@
 
 import {MDCComponent} from '@material/base/component';
 import {SpecificEventListener} from '@material/base/types';
-import {FocusTrap} from '@material/dom/focus-trap';
-import {MDCList, MDCListFactory} from '@material/list/component';
+import {default as createFocusTrap, FocusTrap} from 'focus-trap';
+import {MDCList} from '@material/list/component';
 import {MDCListFoundation} from '@material/list/foundation';
 import {MDCDrawerAdapter} from './adapter';
 import {MDCDismissibleDrawerFoundation} from './dismissible/foundation';
@@ -78,14 +78,14 @@ export class MDCDrawer extends MDCComponent<MDCDismissibleDrawerFoundation> {
   }
 
   initialize(
-      focusTrapFactory: MDCDrawerFocusTrapFactory = (el) => new FocusTrap(el),
-      listFactory: MDCListFactory = (el) => new MDCList(el),
+      focusTrapFactory: MDCDrawerFocusTrapFactory = createFocusTrap as unknown as MDCDrawerFocusTrapFactory,
   ) {
+    /* TODO(drawer): list wrapFocus
     const listEl = this.root_.querySelector(`.${MDCListFoundation.cssClasses.ROOT}`);
     if (listEl) {
-      this.list_ = listFactory(listEl);
-      this.list_.wrapFocus = true;
+      listEl.wrapFocus = true;
     }
+    */
     this.focusTrapFactory_ = focusTrapFactory;
   }
 
@@ -96,25 +96,33 @@ export class MDCDrawer extends MDCComponent<MDCDismissibleDrawerFoundation> {
     this.scrim_ = (this.root_.parentNode as Element).querySelector<HTMLElement>(SCRIM_SELECTOR);
 
     if (this.scrim_ && this.root_.classList.contains(MODAL)) {
-      this.handleScrimClick_ = () => (this.foundation_ as MDCModalDrawerFoundation).handleScrimClick();
+      this.handleScrimClick_ = () => this.handleScrimClick();
       this.scrim_.addEventListener('click', this.handleScrimClick_);
       this.focusTrap_ = util.createFocusTrapInstance(this.root_ as HTMLElement, this.focusTrapFactory_);
     }
 
-    this.handleKeydown_ = (evt) => this.foundation_.handleKeydown(evt);
+    this.handleKeydown_ = (evt) => this.handleKeydown(evt);
     this.handleTransitionEnd_ = (evt) => this.foundation_.handleTransitionEnd(evt);
 
     this.listen('keydown', this.handleKeydown_);
     this.listen('transitionend', this.handleTransitionEnd_);
   }
 
+  handleScrimClick() {
+    this.emit("MDCDrawer:close", {}, true /* shouldBubble */);
+  }
+
+  handleKeydown(evt: KeyboardEvent) {
+    const {keyCode, key} = evt;
+    const isEscape = key === 'Escape' || keyCode === 27;
+    if (isEscape) {
+      this.emit("MDCDrawer:close", {}, true /* shouldBubble */);
+    }
+  }
+
   destroy() {
     this.unlisten('keydown', this.handleKeydown_);
     this.unlisten('transitionend', this.handleTransitionEnd_);
-
-    if (this.list_) {
-      this.list_.destroy();
-    }
 
     const {MODAL} = cssClasses;
     if (this.scrim_ && this.handleScrimClick_ && this.root_.classList.contains(MODAL)) {
@@ -149,8 +157,8 @@ export class MDCDrawer extends MDCComponent<MDCDismissibleDrawerFoundation> {
       },
       notifyClose: () => this.emit(strings.CLOSE_EVENT, {}, true /* shouldBubble */),
       notifyOpen: () => this.emit(strings.OPEN_EVENT, {}, true /* shouldBubble */),
-      trapFocus: () => this.focusTrap_!.trapFocus(),
-      releaseFocus: () => this.focusTrap_!.releaseFocus(),
+      trapFocus: () => this.focusTrap_!.activate(),
+      releaseFocus: () => this.focusTrap_!.deactivate(),
     };
     // tslint:enable:object-literal-sort-keys
 

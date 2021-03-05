@@ -33,3 +33,4 @@ import '@material/chips/chip/custom-element';
 import '@material/circular-progress/custom-element';
 import '@material/data-table/custom-element';
 import '@material/dialog/custom-element';
+import '@material/drawer/custom-element';
