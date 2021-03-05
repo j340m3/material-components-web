@@ -31,3 +31,4 @@ import '@material/checkbox/custom-element';
 import '@material/chips/chip-set/custom-element';
 import '@material/chips/chip/custom-element';
 import '@material/circular-progress/custom-element';
+import '@material/data-table/custom-element';
