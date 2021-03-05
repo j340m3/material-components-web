@@ -60,6 +60,7 @@
     "@material/theme": "^6.0.0",
     "@material/top-app-bar": "^6.0.0",
     "@material/touch-target": "^6.0.0",
-    "@material/typography": "^6.0.0"
+    "@material/typography": "^6.0.0",
+    "@webcomponents/custom-elements": "^1.4.3"
   }
 }

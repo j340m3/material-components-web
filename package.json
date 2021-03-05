@@ -1,7 +1,13 @@
 {
-  "private": true,
-  "description": "Material Components Web",
+  "name": "material-components-web-elm",
+  "version": "6.0.0",
+  "author": "Alexander Foremny <aforemny@posteo.de>",
   "license": "MIT",
+  "description": "Material Components for Elm (integration of Material Components Web)",
+  "repository": "https://github.com/aforemny/material-components-web-elm",
+  "files": [
+    "build"
+  ],
   "scripts": {
     "build": "npm run clean && mkdirp build && webpack --mode=development --progress --colors --display=minimal",
     "build:esmodules": "tsc --project ./tsconfig.json --module esnext --outDir ./packages --importHelpers",

@@ -15,6 +15,9 @@ node_modules/
 /coverage/
 packages/*/dist
 packages/**/*.js
+!packages/**/custom-element.js
+!packages/mdc-utils/className.js
+!packages/material-components-web/native-shim.es5.js
 packages/**/*.d.ts
 packages/**/*.map
 packages/**/test/**.css

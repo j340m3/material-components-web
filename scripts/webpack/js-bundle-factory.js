@@ -146,7 +146,7 @@ class JsBundleFactory {
       output: {
         fsDirAbsolutePath,
         httpDirAbsolutePath,
-        filenamePattern: this.env_.isProd() ? 'material-components-web.min.js' : 'material-components-web.js',
+        filenamePattern: this.env_.isProd() ? 'material-components-web-elm.min.js' : 'material-components-web-elm.js',
         library: 'mdc',
       },
       plugins,

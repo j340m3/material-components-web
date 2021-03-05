@@ -25,7 +25,12 @@ function removeDirectory(directory) {
 function removeFilesOfType(type) {
   const fileGlob = `packages/**/*.${type}`;
   const filePaths = globSync(fileGlob, {
-    ignore: ['**/node_modules/**'],
+    ignore: [
+      '**/node_modules/**',
+      '**/custom-element.js',
+      '**/material-components-web/native-shim.es5.js',
+      '**/mdc-utils/className.js',
+    ],
   });
   filePaths.forEach((filePath) => {
     fs.unlink(filePath, (err) => {
