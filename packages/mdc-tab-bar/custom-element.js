@@ -1,7 +1,6 @@
-import { MDCTabBar } from "./component";
+import {MDCTabBar} from './component';
 
 class MdcTabBar extends HTMLElement {
-
   focus() {
     for (let i = 0; i < this.tabBar_.tabList_.length; i++) {
       if (this.tabBar_.tabList_[i].active) {
@@ -80,4 +79,4 @@ class MdcTabBar extends HTMLElement {
   }
 };
 
-customElements.define("mdc-tab-bar", MdcTabBar);
+customElements.define('mdc-tab-bar', MdcTabBar);
