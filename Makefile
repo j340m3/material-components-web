@@ -1,4 +1,4 @@
-build: node_modules
+build: node_modules packages/**/*.js packages/**/*.ts
 	npm run dist
 
 node_modules:
