@@ -534,6 +534,7 @@
   // List items should support states by default, but it should be possible to opt out.
   :not(.mdc-deprecated-list-item--disabled).mdc-deprecated-list-item {
     @include deprecated-item-interactive-ripple_($query);
+    overflow: hidden;
   }
 
   // Set styles only for focus state on disabled list item.
