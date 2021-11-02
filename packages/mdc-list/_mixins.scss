@@ -100,6 +100,7 @@
   .mdc-deprecated-list-item {
     @include feature-targeting.targets($feat-structure) {
       @include deprecated-item-base_;
+      overflow: visible;
     }
 
     // For components using aria-activedescendant, the focus pseudoclass is
